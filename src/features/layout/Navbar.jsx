@@ -5,15 +5,16 @@ import { useAuth } from "../../context/AuthContext";
 import { UserContext } from "../../context/UserContext";
 import { getSaveScholarship } from "../../services/SavedScholarship";
 import toast from "react-hot-toast";
+import SearchModal from "./SearchModal"; 
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isAuthenticated, logout } = useAuth();
   const location = useLocation();
-  const { user, sevedScholarship, setSevedScholarship } =
-    useContext(UserContext);
+  const { user, sevedScholarship, setSevedScholarship } = useContext(UserContext);
   const navigate = useNavigate();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
+  const [isSearchModalOpen, setSearchModalOpen] = useState(false); // State to manage modal visibility
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -21,6 +22,7 @@ const Navbar = () => {
   const toggleDropdown = () => {
     setDropdownOpen(!isDropdownOpen);
   };
+
   useEffect(() => {
     if (isAuthenticated) {
       async function fetchingSaveScholarships() {
@@ -36,10 +38,18 @@ const Navbar = () => {
     }
   }, [isAuthenticated]);
 
+  const openSearchModal = () => {
+    setSearchModalOpen(true);
+  };
+
+  const closeSearchModal = () => {
+    setSearchModalOpen(false);
+  };
+
   return (
     <div className="bg-[#003a65] text-white">
       <nav className="container mx-auto flex justify-between items-center py-3 md:py-4">
-        {/* Logo */}
+        
         <Link to="/dashboard" className="flex items-center space-x-4">
           <img
             src="/logo.png"
@@ -48,7 +58,7 @@ const Navbar = () => {
           />
         </Link>
 
-        {/* Navigation Links for lg screens */}
+        
         <ul className="hidden lg:flex space-x-8 items-center">
           <li className="group">
             <NavLink
@@ -82,52 +92,47 @@ const Navbar = () => {
               About
             </NavLink>
           </li>
-
-
-          {/* Conditionally render Search Icon for /dashboard route */}
-          
         </ul>
-        
+
         {/* Authentication Links */}
         <div className="hidden lg:flex space-x-4 items-center">
-            <div className="group">
-              <a
-                href="#search"
-                className="bg-[#b92a3b] text-white transition-all duration-300 px-3 py-2 rounded-md flex items-center space-x-2 hover:bg-white hover:text-[#b92a3b]"
-              >
-                <FiSearch size={20} />
-              </a>
-            </div>
-            {isAuthenticated && (
           <div className="group">
-            <div
-              className="relative"
-              onClick={() => {
-                if (!isAuthenticated) return toast.error("sorry, login first");
-                navigate("/saved-scholarship")
-              }}
+            <button
+              onClick={openSearchModal} // Open the search modal on click
+              className="bg-[#b92a3b] text-white transition-all duration-300 px-3 py-2 rounded-md flex items-center space-x-2 hover:bg-white hover:text-[#b92a3b]"
             >
-              
+              <FiSearch size={20} />
+            </button>
+          </div>
+          {isAuthenticated && (
+            <div className="group">
+              <div
+                className="relative"
+                onClick={() => {
+                  if (!isAuthenticated) return toast.error("sorry, login first");
+                  navigate("/saved-scholarship");
+                }}
+              >
                 <strong className="absolute top-[-12px] right-[-5px] bg-white rounded-full w-5 text-yellow-400 text-center text-sm">
                   {sevedScholarship.length || 0}
                 </strong>
-              
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill={location.pathname === "/saved-scholarship"?"#b92a3b":"none"}
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className={`w-6 h-6 cursor-pointer hover:text-[#b92a3b] `}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z"
-                />
-              </svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill={location.pathname === "/saved-scholarship" ? "#b92a3b" : "none"}
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-6 h-6 cursor-pointer hover:text-[#b92a3b]"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z"
+                  />
+                </svg>
+              </div>
             </div>
-          </div>)}
+          )}
           {isAuthenticated ? (
             <div className="dropdown dropdown-end z-50">
               <label
@@ -142,13 +147,12 @@ const Navbar = () => {
                     className="w-8 h-8 md:w-10 md:h-10 object-cover rounded-full"
                   />
                 </div>
-
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
-                  className={`w-5 h-5 transform transition-transform duration-300 rotate-0 `}
+                  className="w-5 h-5 transform transition-transform duration-300 rotate-0"
                 >
                   <path
                     strokeLinecap="round"
@@ -178,21 +182,20 @@ const Navbar = () => {
                           <path
                             strokeLinecap="round"
                             strokeLinejoin="round"
-                            d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                            d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 0 12 21a8.966 8.966 0 0 0-5.982-2.975"
                           />
                         </svg>
-                        Profile
+                        <span>Profile</span>
                       </div>
                     </Link>
                   </li>
-                  <li onClick={toggleDropdown}>
+                  <li>
                     <button
                       onClick={() => {
                         logout();
-                        navigate("/dashboard");
-                        setSevedScholarship([]);
+                        navigate("/");
                       }}
-                      className=" flex text-[#003A65]"
+                      className="flex items-center text-[#003A65]"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -200,178 +203,94 @@ const Navbar = () => {
                         viewBox="0 0 24 24"
                         strokeWidth={1.5}
                         stroke="currentColor"
-                        className="size-6 text-[#b92a3b]"
+                        className="size-6 me-2 text-[#b92a3b]"
                       >
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"
+                          d="M15 12H3m0 0l4 4m-4-4l4-4m12 0h-4m0 0l4 4m-4-4l4-4"
                         />
                       </svg>
-                      Logout
+                      <span>Logout</span>
                     </button>
                   </li>
                 </ul>
               )}
             </div>
           ) : (
-            <>
-              <NavLink
-                to="/login"
-                className="hover:bg-[#b92a3b] hover:text-white transition-all duration-300 px-3 py-2 rounded-md"
-              >
-                Log In
-              </NavLink>
-              <NavLink
-                to="/signup"
-                className="bg-[#b92a3b] text-white py-2 px-4 rounded-md transition-all duration-300 hover:bg-white hover:text-[#b92a3b]"
-              >
+            <div className="flex space-x-4 items-center">
+              <Link to="/login" className="bg-[#b92a3b] text-white px-4 py-2 rounded-md hover:bg-[#ff6347]">
+                Login
+              </Link>
+              <Link to="/signup" className="bg-white text-[#b92a3b] px-4 py-2 rounded-md hover:bg-gray-200">
                 Sign Up
-              </NavLink>
-            </>
+              </Link>
+            </div>
           )}
         </div>
 
-        {/* Burger Menu Icon for mobile and medium devices */}
-        <div className="lg:hidden flex items-center">
+        {/* Mobile Menu */}
+        <div className="lg:hidden">
           <button
             onClick={toggleMenu}
-            className="text-white focus:outline-none"
+            className="focus:outline-none"
           >
-            {isMenuOpen ? (
-              <FiX
-                size={28}
-                className="hover:text-[#b92a3b] transition-colors"
-              />
-            ) : (
-              <FiMenu
-                size={28}
-                className="hover:text-[#b92a3b] transition-colors"
-              />
-            )}
+            {isMenuOpen ? <FiX size={28} /> : <FiMenu size={28} />}
           </button>
         </div>
       </nav>
 
-      {/* Mobile and Medium Device Menu */}
-      <ul
-        className={`${
-          isMenuOpen ? "flex mt-14" : "hidden"
-        } lg:hidden flex-col space-y-6 items-center bg-[#003a65] absolute top-0 right-0 w-2/3 md:w-1/3 h-screen p-6 z-20 transition-transform duration-300 transform ${
-          isMenuOpen ? "translate-x-0" : "translate-x-full"
-        }`}
-      >
-        <li className="group">
-          <NavLink
-            to="/dashboard"
-            className="hover:bg-[#b92a3b] hover:text-white transition-all duration-300 px-3 py-2 rounded-md"
-            onClick={toggleMenu}
-          >
-            Home
-          </NavLink>
-        </li>
-        <li className="group">
-          <NavLink
-            to="/scholarships"
-            className="hover:bg-[#b92a3b] hover:text-white transition-all duration-300 px-3 py-2 rounded-md"
-            onClick={toggleMenu}
-          >
-            Scholarships
-          </NavLink>
-        </li>
-        <li className="group">
-          <NavLink
-            to="/browse-scholarships"
-            className="hover:bg-[#b92a3b] hover:text-white transition-all duration-300 px-3 py-2 rounded-md"
-            onClick={toggleMenu}
-          >
-             Field Of Study
-          </NavLink>
-        </li>
-        <li className="group">
-          <NavLink
-            to="/about"
-            className="hover:bg-[#b92a3b] hover:text-white transition-all duration-300 px-3 py-2 rounded-md"
-            onClick={toggleMenu}
-          >
-            About
-          </NavLink>
-        </li>
-
-        {/* Conditional Search Link with Icon for mobile */}
-        {location.pathname === "/dashboard" && (
-          <li className="group">
-            <a
-              href="#search"
-              className=" text-white transition-all duration-300 px-3 py-2 rounded-md flex items-center space-x-2 hover:bg-white hover:text-[#b92a3b]"
-              onClick={toggleMenu}
-            >
-              <span>Search</span>
-            </a>
-          </li>
-        )}
-
-        {/* Authentication Links for Mobile */}
-        {isAuthenticated ? (
-          <>
-            <Link to={"/profile"}>
-              <li
-                className="group text-white flex items-center space-x-4"
-                onClick={toggleMenu}
+      {/* Mobile Navigation */}
+      {isMenuOpen && (
+        <div className="lg:hidden bg-white text-black py-4">
+          <ul className="flex flex-col space-y-2 items-center">
+            <li>
+              <NavLink
+                to="/dashboard"
+                className="hover:bg-[#b92a3b] hover:text-white transition-all duration-300 px-3 py-2 rounded-md"
               >
-                Profile
-              </li>
-            </Link>
-            <li className="group">
+                Home
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to="/scholarships"
+                className="hover:bg-[#b92a3b] hover:text-white transition-all duration-300 px-3 py-2 rounded-md"
+              >
+                Scholarships
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to="/browse-scholarships"
+                className="hover:bg-[#b92a3b] hover:text-white transition-all duration-300 px-3 py-2 rounded-md"
+              >
+                Field Of Study
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to="/about"
+                className="hover:bg-[#b92a3b] hover:text-white transition-all duration-300 px-3 py-2 rounded-md"
+              >
+                About
+              </NavLink>
+            </li>
+            <li>
               <button
-                onClick={() => {
-                  logout();
-                  toggleMenu();
-                  navigate("/dashboard");
-                }}
-                className=" text-white py-2 px-4 rounded-md transition-all duration-300 hover:bg-white hover:text-[#b92a3b] flex"
+                onClick={openSearchModal} // Open the search modal on click
+                className="bg-[#b92a3b] text-white transition-all duration-300 px-3 py-2 rounded-md flex items-center space-x-2 hover:bg-white hover:text-[#b92a3b]"
               >
-                <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="currentColor"
-                        className="size-6 me-2"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"
-                        />
-                      </svg>
-                      <span>Logout</span>
+                <FiSearch size={20} />
+                <span>Search</span> 
               </button>
             </li>
-          </>
-        ) : (
-          <>
-            <li className="group">
-              <NavLink
-                to="/login"
-                className="hover:bg-[#b92a3b] hover:text-white transition-all duration-300 px-3 py-2 rounded-md"
-                onClick={toggleMenu}
-              >
-                Log In
-              </NavLink>
-            </li>
-            <li className="group">
-              <NavLink
-                to="/signup"
-                className="bg-[#b92a3b] text-white py-2 px-4 rounded-md transition-all duration-300 hover:bg-white hover:text-[#b92a3b]"
-                onClick={toggleMenu}
-              >
-                Sign Up
-              </NavLink>
-            </li>
-          </>
-        )}
-      </ul>
+          </ul>
+        </div>
+      )}
+
+      {/* Search Modal */}
+      <SearchModal isOpen={isSearchModalOpen} onClose={closeSearchModal} />
     </div>
   );
 };
